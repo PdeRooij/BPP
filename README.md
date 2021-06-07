@@ -1,5 +1,5 @@
 # BPP+
-![alt text](../BPP+_icon.png "BPP+ logo")
+![alt text](BPP+_icon.png "BPP+ logo")
 Repository for the Blue Photon Processor+ application. An elegant calculator for determining required basic commodities in a (bulk) build.
 
 ## How to run
