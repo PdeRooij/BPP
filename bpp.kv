@@ -1,0 +1,94 @@
+#:kivy 2.0.0
+
+<BppScreen>:
+    do_default_tab: False
+
+    TabbedPanelItem:
+        text: 'Builds'
+        BoxLayout:
+            BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    text_size: self.size
+                    halign: 'left'
+                    text: 'Blueprint:'
+                Button:
+                    id: drop_button
+                    text: 'Select blueprint'
+                    on_release: bp_drop.open(self)
+                    size_hint_y: None
+                DropDown:
+                    id: bp_drop
+                    on_select: drop_button.text = '{}'.format(args[1])
+                    on_kv_post: self.dismiss()
+                    Button:
+                        text: 'Darkness Warmed Over Blueprint'
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        on_release: bp_drop.select(self.text), app.calculate_cost(self.text)
+                    Button:
+                        text: 'Zombie Bunny Stop Fragment'
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        on_release: bp_drop.select(self.text), app.calculate_cost(self.text)
+                BoxLayout:
+                    size_hint_y: None
+                    height: build_n.height
+                    Label:
+                        size_hint_y: None
+                        height: build_n.height
+                        text_size: self.size
+                        halign: 'right'
+                        valign: 'middle'
+                        text: 'Amount to build:'
+                    TextInput:
+                        id: build_n
+                        multiline: False
+                        hint_text: '#'
+                        input_filter: 'int'
+                        on_text: root.update_cost(int(self.text)) if self.text else root.update_cost(1)
+                        size_hint: None, None
+                        height: self.minimum_height
+                Label:
+                    text: 'Fill up remaining space.'
+            Splitter:
+                sizable_from: 'left'
+                ScrollView:
+                    Label:
+                        id: build_info
+                        text_size: self.width, None
+                        text: 'Summary of required materials:'
+                        size_hint_y: None
+                        height: self.texture_size[1]
+
+    TabbedPanelItem:
+        text: 'Database'
+        BoxLayout:
+			orientation: 'vertical'
+			BoxLayout:
+				Label:
+					text: 'Database view'
+				Label:
+					text: 'Filters'
+			GridLayout:
+				cols: 6
+				CheckBox:
+				    id: o1_check
+				Label:
+				    text: 'Option 1'
+				CheckBox:
+				    id: o2_check
+				Label:
+				    text: 'Option 2'
+
+    TabbedPanelItem:
+        text: 'Settings'
+        BoxLayout:
+            orientation: 'vertical'
+            Label:
+                text: 'Version ' + str(app.version)
+            Button:
+                text: 'Open Settings'
+                on_release: app.open_settings()
