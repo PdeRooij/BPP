@@ -6,29 +6,34 @@ class BppDb:
     Class handling interactions between the application and its SQLite database.
     """
 
-    def __init__(self, db_file=None):
+    def __init__(self, db_file):
         """
         Class is initialised by preparing a connection to a given database file.
 
         Args:
-            db_file (str, optional): Name (and location) of the database file
+            db_file (str): Name (and location) of the database file
         """
-        if db_file is None:
-            self.db_file = 'bpp.db'
-
+        self.db_file = db_file
         self.connection = None
 
     def create_connection(self):
-        """ Connect to existing SQLite database. """
+        """Try to connect to existing SQLite database."""
         try:
             self.connection = connect(self.db_file)
         except Error as e:
             print(e)
             raise
 
-    def check_db_version(self):
-        """ Placeholder to check whether there is a new database available. """
-        pass
+    def get_db_version(self):
+        """Queries the version of the current database.
+
+        Returns:
+            Version (str) of connected database.
+        """
+        cur = self.connection.cursor()
+        # Version is contained in variable 'db_version' in the bpp_variables table. Query and return result.
+        cur.execute("SELECT value FROM bpp_variables WHERE variable = 'db_version'")
+        return cur.fetchone()[0]
 
     def create_table(self, create_table_sql):
         """ Create a table from the create_table_sql statement
@@ -38,10 +43,18 @@ class BppDb:
 
         Returns:
         """
-        try:
-            self.connection.cursor().execute(create_table_sql)
-        except Error as e:
-            print(e)
+        self.connection.cursor().execute(create_table_sql)
+
+    def replace_variable(self, variable, value):
+        """Replace (add or change) BPP+ specific variable in table of variables.
+
+        Args:
+            variable (str): Name of variable to replace.
+            value (str): Value to associate with variable.
+        """
+        sql = "REPLACE INTO bpp_variables (variable, value) VALUES ('{}', '{}')".\
+            format(variable, value)
+        self.connection.cursor().execute(sql)
 
     def insert_blueprint(self, bp, products, **kwargs):
         """
@@ -51,23 +64,23 @@ class BppDb:
             bp (str): blueprint name
             products (str): name(s) of thing(s) produced by the blueprint
             **kwargs (any, optional): Values for additional columns, namely:
-                source (str, optional):
-                tech (int, optional):
-                bp_cost (int, optional):
-                weight (int, optional):
-                size (int, optional):
-                max_uses (int, optional):
-                manhours (int, optional):
-                max_workforce (int, optional):
-                init_credits (int, optional):
-                init_materials (str, optional):
-                init_materials_n (str, optional):
-                init_materials_discount (str, optional):
-                per_credits (int, optional):
-                per_materials (str, optional):
-                per_materials_n (str, optional):
-                per_materials_discount (str, optional):
-                products_n (str, optional):
+                source (str, optional): Where/how the blueprint can be obtained.
+                tech (int, optional): Tech level.
+                bp_cost (int, optional): Cost of the blueprint if bought.
+                weight (int, optional): Weight of the blueprint itself.
+                size (int, optional): Size of the blueprint itself
+                max_uses (int, optional): Number of uses on one blueprint (if applicable).
+                manhours (int, optional): Manhours required to build one product.
+                max_workforce (int, optional): Maximum amount of workers who can be dedicated to production.
+                init_credits (int, optional): Credits required to start building one product.
+                init_materials (str, optional): Materials required to start building one product.
+                init_materials_n (str, optional): Number of each material required to start building one product.
+                init_materials_discount (str, optional): Whether or not initial materials receive bulk discounts.
+                per_credits (int, optional): Credits required during building one product.
+                per_materials (str, optional): Materials required during building one product.
+                per_materials_n (str, optional): Number of each material required during building one product.
+                per_materials_discount (str, optional): Whether or not periodic materials receive bulk discounts.
+                products_n (str, optional): Number produced of each product.
 
         Returns:
         """
@@ -151,6 +164,13 @@ class BppDb:
                                         products text NOT NULL,
                                         products_n text
                                     );""")
+            # Create table for BPP+ specific variables
+            self.create_table("""CREATE TABLE IF NOT EXISTS bpp_variables (
+                                        variable text PRIMARY KEY,
+                                        value text NOT NULL
+                                    );""")
+            # Add database version
+            self.replace_variable('db_version', '0.1')
             # Add two blueprints
             self.insert_blueprint(bp='Zombie Bunny Stop Fragment',
                                   products='Zombie Bunny Stop',
@@ -210,6 +230,17 @@ class BppDb:
 
         # Returns dictionary with column names as keys and corresponding values
         return dict(zip([desc[0] for desc in cur.description], cur.fetchone()))
+
+    def dump(self, dump_file):
+        """
+        Dumps database to specified file.
+
+        Args:
+            dump_file (str): Location of the file to dump the database to.
+        """
+        with open(dump_file, 'w') as df:
+            for line in self.connection.iterdump():
+                df.write(line + '\n')
 
     def close_connection(self):
         """ Close connection to current SQLite database. """

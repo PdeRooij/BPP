@@ -1,4 +1,8 @@
+# Project stuff
 from bpp_db import BppDb
+
+# OS stuff to work with files etc.
+from os.path import isfile
 
 
 class BppLogic:
@@ -14,12 +18,36 @@ class BppLogic:
         Args:
             db_file (str, optional): Name (and location) of the database file
         """
-        # Connect to provided or standard database
+        # Keep track whether the database has changed this session
+        self.db_change = False
+        # Use standard database location if no location is provided
         if db_file is None:
-            self.db = BppDb('bpp.db')
+            db_file = 'bpp.db'
+        # Determine whether given file is a database or dump
+        if db_file[-3:] != '.db':
+            # The file doesn't end with .db, so it's probably a dump
+            if isfile(db_file):
+                # Dump exists, so read that into standard database location
+                dump_file = db_file
+                db_file = 'bpp.db'
+            else:
+                # Dump doesn't even exist... Just fail.
+                raise FileNotFoundError('Cannot find specified dump file ({})!'.format(db_file))
         else:
-            self.db = BppDb(db_file)
-        self.db.create_connection()
+            # If database exists, just connect, otherwise resort to standard dump location
+            if isfile(db_file):
+                dump_file = None
+            else:
+                # Database does not exist yet, resort to standard dump location
+                print('Database not found, resorting to default dump location.')
+                dump_file = 'bpp_db.sql'
+
+        # Prepare database module
+        self.db = BppDb(db_file)
+        self.db.create_connection()     # Also creates database if it doesn't exist yet
+        # Initialise database in case of dump
+        if dump_file:
+            self.db.initialise_database()
 
         # Initialise cost dictionaries of blueprint under review
         self.init_cost = {}
