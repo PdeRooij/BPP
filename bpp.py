@@ -5,8 +5,8 @@ and discounts for bulk builds for the game Star Sonata.
 """
 
 # Project stuff
-from bpp_screen import BppScreen  # GUI
-from bpp_db import BppDb          # Database
+from bpp_screen import BppScreen    # GUI
+from bpp_logic import BppLogic      # Logic module
 
 # Kivy stuff
 from kivy.app import App
@@ -23,7 +23,7 @@ class BPP(App):
         super().__init__(**kwargs)
         self.version = 0.1
         self.icon = 'BPP+_icon.png'
-        self.db = BppDb()
+        self.logic = BppLogic()
 
         # Prepare settings
         self.settings_cls = SettingsWithSidebar
@@ -32,10 +32,6 @@ class BPP(App):
         self.screen = None
 
     def build(self):
-        # Connect to database
-        self.db.create_connection()
-        # self.db.initialise_database()
-
         # Prepare GUI
         self.screen = BppScreen()
         return self.screen
@@ -50,32 +46,21 @@ class BPP(App):
         Returns:
 
         """
-        # Retrieve (dictionary of) blueprint
-        bp = self.db.find_blueprint(bp_name)
-        # Extract single costs and put into dict
-        cost_dict = dict(
-            zip(bp['init_materials'][1:-1].split(', '),
-                [int(x) for x in bp['init_materials_n'][1:-1].split(', ')]))
-        for mat, n in zip(bp['per_materials'][1:-1].split(', '),
-                          [int(x) for x in bp['per_materials_n'][1:-1].split(', ')]):
-            if mat in cost_dict:
-                cost_dict[mat] += n
-            else:
-                cost_dict[mat] = n
         # Propagate cost dictionary for display
-        self.screen.update_cost_dict(cost_dict)
+        self.screen.update_cost_dict(self.logic.calculate_cost(bp_name))
 
     @staticmethod
     def print_debug_text(text):
         print(text)
 
     def on_stop(self):
-        self.db.close_connection()  # Close database connection
+        """Whenever the application is closed, ensure it quits gracefully."""
+        self.logic.stop()   # Signal logic module to wrap up
         return True
 
 
 if __name__ == '__main__':
-    """ Starting BPP+. Connect to database and start application. """
+    """ Starting BPP+. """
 
     # Start application
     BPP().run()
