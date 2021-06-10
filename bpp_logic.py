@@ -47,7 +47,8 @@ class BppLogic:
         self.db.create_connection()     # Also creates database if it doesn't exist yet
         # Initialise database in case of dump
         if dump_file:
-            self.db.initialise_database()
+            print('Initialising database from dump file: ' + dump_file)
+            self.db.initialise_database(dump_file)
 
         # Initialise cost dictionaries of blueprint under review
         self.init_cost = {}
@@ -76,6 +77,17 @@ class BppLogic:
         """
         # Returns dictionary with column names as keys and corresponding values
         return self.db.find_blueprint(bp_name)
+
+    def add_blueprint(self, bp):
+        """
+        Adds given blueprint to the database.
+
+        Args:
+            bp (dict): Blueprint in dictionary format (containing name, materials etc.).
+        """
+        # Database insert
+        self.db.insert_blueprint(bp.pop('name'), bp.pop('products'), **bp)
+        self.db_change = True   # Blueprint inserted, so database changed
 
     def calculate_cost(self, bp_name):
         """
@@ -109,5 +121,13 @@ class BppLogic:
         return self.total_cost
 
     def stop(self):
-        """Close database connection when application is stopped."""
+        """Gracefully close database connection when application is stopped."""
+        # If database was changed this session, update version and dump
+        if self.db_change:
+            # Determine current version and adapt if needed
+            version = self.db.get_db_version()
+            if version[-1] != 'c':
+                version += 'c'  # Add c to version to indicate customised version
+            self.db.replace_variable('db_version', version)     # Store new version number
+            self.db.dump('bpp_db.sql')
         self.db.close_connection()

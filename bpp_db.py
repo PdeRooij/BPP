@@ -118,90 +118,19 @@ class BppDb:
         else:
             raise FileNotFoundError("Error! No database connection.")
 
-    def initialise_database(self):
-        """ Initialise database based on an exported SQLite database
+    def initialise_database(self, dump_file):
+        """
+        Initialise database based on an exported SQLite database.
 
-        Returns:
+        Args:
+            dump_file (str): Location of the exported SQLite database.
 
         """
-        # Create tables
+        # Don't try to populate the database if there is no connection
         if self.connection is not None:
-            # Create blueprints table
-            self.create_table("""CREATE TABLE IF NOT EXISTS blueprints (
-                                        blueprint text PRIMARY KEY,
-                                        tech integer,
-                                        source text,
-                                        bp_cost integer,
-                                        weight integer,
-                                        size integer,
-                                        max_uses integer,
-                                        manhours integer,
-                                        max_workforce integer,
-                                        init_credits integer,
-                                        init_materials text,
-                                        init_materials_n text,
-                                        init_materials_discount text,
-                                        per_credits integer,
-                                        per_materials text,
-                                        per_materials_n text,
-                                        per_materials_discount text,
-                                        products text NOT NULL,
-                                        products_n text
-                                    );""")
-            # Create factories table
-            self.create_table("""CREATE TABLE IF NOT EXISTS factories (
-                                        factory text PRIMARY KEY,
-                                        tech integer,
-                                        mobile bool NOT NULL,
-                                        source text,
-                                        factory_cost integer,
-                                        weight integer,
-                                        size integer,
-                                        workers integer NOT NULL,
-                                        credits integer,
-                                        materials text,
-                                        materials_n text,
-                                        products text NOT NULL,
-                                        products_n text
-                                    );""")
-            # Create table for BPP+ specific variables
-            self.create_table("""CREATE TABLE IF NOT EXISTS bpp_variables (
-                                        variable text PRIMARY KEY,
-                                        value text NOT NULL
-                                    );""")
-            # Add database version
-            self.replace_variable('db_version', '0.1')
-            # Add two blueprints
-            self.insert_blueprint(bp='Zombie Bunny Stop Fragment',
-                                  products='Zombie Bunny Stop',
-                                  products_n='1',
-                                  tech=21,
-                                  source='Easter',
-                                  manhours=200000000,
-                                  weight=100000,
-                                  size=150,
-                                  init_materials='[Metals, Zombie Bunny Stop Fragment]',
-                                  init_materials_n='[25000, 4]',
-                                  init_materials_discount='[Y, Y]',
-                                  per_credits=5000000000)
-            self.insert_blueprint(bp='Darkness Warmed Over Blueprint',
-                                  products='Darkness Warmed Over',
-                                  products_n='1',
-                                  tech=21,
-                                  source='Infernal Darkness, Dark Scorch',
-                                  max_uses=1,
-                                  manhours=500000000,
-                                  weight=1000,
-                                  size=1,
-                                  init_credits=1500000000,
-                                  init_materials="[Metals, Promethium, Dark Scorch's Remains]",
-                                  init_materials_n='[1000, 50, 1]',
-                                  init_materials_discount='[Y, Y, Y]',
-                                  per_credits=1500000000,
-                                  per_materials='[Metals, Dark Cell, Promethium, '
-                                                'Dark Isotope, Dark Neutron Rod, Death Warmed Over]',
-                                  per_materials_n='[100000, 10, 500, 10, 10, 2]',
-                                  per_materials_discount='[Y, Y, Y, Y, Y, Y]')
+            # Read from given dump file
+            with open(dump_file, 'r') as df:
+                self.connection.cursor().executescript(df.read())
         else:
             raise FileNotFoundError("Error! No database connection.")
 
