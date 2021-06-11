@@ -102,13 +102,39 @@ class BppLogic:
         # Retrieve (dictionary of) blueprint
         bp = self.db.find_blueprint(bp_name)
         # Extract initial costs and put into dict
-        self.init_cost = dict(
-            zip(bp['init_materials'][1:-1].split(', '),
-                [int(x) for x in bp['init_materials_n'][1:-1].split(', ')]))
+        in_mats = bp['init_materials']
+        # Determine if there are initial materials and discern whether there are multiple
+        if in_mats:
+            # Only add initial materials if they are required
+            if in_mats[0] == '[':
+                # Starts with bracket, so multiple materials. Remove brackets, remove spaces and split.
+                self.init_cost = dict(
+                    zip([m.strip() for m in in_mats[1:-1].split(',')],
+                        [int(m.strip()) for m in bp['init_materials_n'][1:-1].split(',')]))
+            else:
+                # Single material, put material and count in dictionary
+                self.init_cost = {in_mats, int(bp['init_materials_n'])}
+        # Add initial credit cost, if required.
+        if bp['init_credits']:
+            self.init_cost['Credits'] = int(bp['init_credits'])
+
         # Extract periodic costs and put into dict
-        self.per_cost = dict(
-            zip(bp['per_materials'][1:-1].split(', '),
-                [int(x) for x in bp['per_materials_n'][1:-1].split(', ')]))
+        per_mats = bp['per_materials']
+        # Determine if there are periodic materials and discern whether there are multiple
+        if per_mats:
+            # Only add periodic materials if they are required
+            if per_mats[0] == '[':
+                # Starts with bracket, so multiple materials. Remove brackets, split and remove spaces.
+                self.per_cost = dict(
+                    zip([m.strip() for m in per_mats[1:-1].split(',')],
+                        [int(m.strip()) for m in bp['per_materials_n'][1:-1].split(',')]))
+            else:
+                # Single material, put material and count in dictionary
+                self.per_cost = {per_mats, int(bp['per_materials_n'])}
+        # Add periodic credit cost, if required.
+        if bp['per_credits']:
+            self.per_cost['Credits'] = int(bp['per_credits'])
+
         # Construct total costs dictionary by adding periodic to initial materials
         self.total_cost = self.init_cost.copy()     # Copy entire init_cost. Dict is reference by default.
         for mat, n in self.per_cost.items():
