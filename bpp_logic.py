@@ -99,6 +99,11 @@ class BppLogic:
         Returns:
             Dictionary of total costs in basic commodities for the blueprint's product.
         """
+        # Empty all dictionaries
+        self.init_cost = {}
+        self.per_cost = {}
+        self.total_cost = {}
+
         # Retrieve (dictionary of) blueprint
         bp = self.db.find_blueprint(bp_name)
         # Extract initial costs and put into dict
@@ -113,7 +118,7 @@ class BppLogic:
                         [int(m.strip()) for m in bp['init_materials_n'][1:-1].split(',')]))
             else:
                 # Single material, put material and count in dictionary
-                self.init_cost = {in_mats, int(bp['init_materials_n'])}
+                self.init_cost = {in_mats: int(bp['init_materials_n'])}
         # Add initial credit cost, if required.
         if bp['init_credits']:
             self.init_cost['Credits'] = int(bp['init_credits'])
@@ -130,7 +135,7 @@ class BppLogic:
                         [int(m.strip()) for m in bp['per_materials_n'][1:-1].split(',')]))
             else:
                 # Single material, put material and count in dictionary
-                self.per_cost = {per_mats, int(bp['per_materials_n'])}
+                self.per_cost = {per_mats: int(bp['per_materials_n'])}
         # Add periodic credit cost, if required.
         if bp['per_credits']:
             self.per_cost['Credits'] = int(bp['per_credits'])
