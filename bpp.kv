@@ -1,13 +1,16 @@
 #:kivy 2.0.0
 
+# Custom blueprint dropdown button with added functionality
 <BpDropButton>:
     size_hint_y: None
     height: self.texture_size[1]
     on_release: app.calculate_cost(self.text)
 
+# Main application tree structure
 <BppScreen>:
     do_default_tab: False
 
+    # Primary tab: build calculator
     TabbedPanelItem:
         text: 'Builds'
         BoxLayout:
@@ -27,7 +30,8 @@
                     size_hint_y: None
                 DropDown:
                     id: bp_drop
-                    on_select: drop_button.text = '{}'.format(args[1])
+                    # When a blueprint is selected, put its name in dropdown button
+                    on_select: drop_button.text = args[1]
                 BoxLayout:
                     size_hint_y: None
                     height: build_n.height
@@ -58,6 +62,7 @@
                         size_hint_y: None
                         height: self.texture_size[1]
 
+    # Database view tab
     TabbedPanelItem:
         text: 'Database'
         BoxLayout:
@@ -78,12 +83,15 @@
 				Label:
 				    text: 'Option 2'
 
+    # Settings tab
     TabbedPanelItem:
         text: 'Settings'
         BoxLayout:
             orientation: 'vertical'
             Label:
-                text: 'Version ' + str(app.version)
+                text: 'Application version ' + str(app.version)
+            Label:
+                text: 'Database version ' + str(app.get_db_version())
             Button:
                 text: 'Open Settings'
                 on_release: app.open_settings()

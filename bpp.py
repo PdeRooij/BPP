@@ -21,7 +21,7 @@ class BPP(App):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.version = 0.1
+        self.version = 0.15
         self.icon = 'BPP+_icon.png'
         self.logic = BppLogic()
 
@@ -32,6 +32,8 @@ class BPP(App):
         self.screen = None
 
     def build(self):
+        # Give neat name to app
+        self.title = 'BPP+ (Blue Photon Processor+)'
         # Prepare GUI
         self.screen = BppScreen()
         self.screen.populate_dropdown(self.logic.get_all_blueprints())
@@ -53,6 +55,14 @@ class BPP(App):
     @staticmethod
     def print_debug_text(text):
         print(text)
+
+    def get_db_version(self):
+        """Retrieves version of connected database.
+
+        Returns:
+            str: Database version in string format.
+        """
+        return self.logic.get_db_version()
 
     def on_stop(self):
         """Whenever the application is closed, ensure it quits gracefully."""

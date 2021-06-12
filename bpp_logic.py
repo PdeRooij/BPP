@@ -55,6 +55,17 @@ class BppLogic:
         self.per_cost = {}
         self.total_cost = {}
 
+    def get_db_version(self):
+        """
+        Retrieve database version.
+
+        Returns:
+            str: Database version in string format.
+        """
+        if self.db.connection:
+            return self.db.get_db_version()
+        return 'No database connected!'
+
     def check_db_version(self):
         """ Placeholder to check whether there is a new database available. """
         pass
