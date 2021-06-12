@@ -1,8 +1,25 @@
+# Make display locale aware
+import locale
+
 # Kivy stuff
 from kivy.uix.tabbedpanel import TabbedPanel
+from kivy.uix.button import Button
+
+
+class BpDropButton(Button):
+    """Special button for a blueprint in the blueprint dropdown menu."""
+
+    def __init__(self, **kwargs):
+        """
+        Merely pass on to super to include all regular button behaviour.
+        """
+        super().__init__(**kwargs)
 
 
 class BppScreen(TabbedPanel):
+    """
+    Class handling all graphical interactions.
+    """
 
     def __init__(self, **kwargs):
         """
@@ -13,7 +30,23 @@ class BppScreen(TabbedPanel):
             **kwargs:
         """
         super().__init__(**kwargs)
+        locale.setlocale(locale.LC_ALL, '')     # Autodetect and set locale
         self.cost_dict = {}
+
+    def populate_dropdown(self, bp_list):
+        """
+        Adds all given blueprints as buttons to the dropdown menu.
+
+        Args:
+            bp_list (list): All blueprint names in the database.
+        """
+        # Loop through blueprints and add each as button
+        for bp in bp_list:
+            # Construct button
+            bp_btn = BpDropButton(text=bp)
+            bp_btn.bind(on_release=lambda btn: self.ids['bp_drop'].select(btn.text))
+            # Add button to dropdown list
+            self.ids['bp_drop'].add_widget(bp_btn)
 
     def update_cost_dict(self, new_cost):
         """
@@ -42,7 +75,7 @@ class BppScreen(TabbedPanel):
         if self.cost_dict:
             # Construct summary string
             mat_sum = 'Summary of required materials:'
-            mat_sum += ''.join(['\n' + str(number * n) + ' ' + mat for mat, n in self.cost_dict.items()])
+            mat_sum += ''.join(['\n' + f'{number * n:n}' + ' ' + mat for mat, n in self.cost_dict.items()])
             # Display constructed summary
             self.ids['build_info'].text = mat_sum
         else:

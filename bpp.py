@@ -34,6 +34,7 @@ class BPP(App):
     def build(self):
         # Prepare GUI
         self.screen = BppScreen()
+        self.screen.populate_dropdown(self.logic.get_all_blueprints())
         return self.screen
 
     def calculate_cost(self, bp_name):

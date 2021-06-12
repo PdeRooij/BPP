@@ -1,5 +1,10 @@
 #:kivy 2.0.0
 
+<BpDropButton>:
+    size_hint_y: None
+    height: self.texture_size[1]
+    on_release: app.calculate_cost(self.text)
+
 <BppScreen>:
     do_default_tab: False
 
@@ -17,22 +22,12 @@
                 Button:
                     id: drop_button
                     text: 'Select blueprint'
+                    on_parent: bp_drop.dismiss()
                     on_release: bp_drop.open(self)
                     size_hint_y: None
                 DropDown:
                     id: bp_drop
                     on_select: drop_button.text = '{}'.format(args[1])
-                    on_kv_post: self.dismiss()
-                    Button:
-                        text: 'Darkness Warmed Over Blueprint'
-                        size_hint_y: None
-                        height: self.texture_size[1]
-                        on_release: bp_drop.select(self.text), app.calculate_cost(self.text)
-                    Button:
-                        text: 'Zombie Bunny Stop Fragment'
-                        size_hint_y: None
-                        height: self.texture_size[1]
-                        on_release: bp_drop.select(self.text), app.calculate_cost(self.text)
                 BoxLayout:
                     size_hint_y: None
                     height: build_n.height
