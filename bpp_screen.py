@@ -81,3 +81,16 @@ class BppScreen(TabbedPanel):
         else:
             # Empty dictionary, display error
             self.ids['build_info'].text = 'Please select a blueprint first!'
+
+    def update_setup(self, setup):
+        """
+        Updates the material cost summary display, based on a given desired amount.
+
+        Args:
+            setup (str): String of optimal ExE kit setup
+
+        Returns:
+
+        """
+        # Display constructed summary
+        self.ids['exe_info'].text = setup

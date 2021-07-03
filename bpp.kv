@@ -62,6 +62,177 @@
                         size_hint_y: None
                         height: self.texture_size[1]
 
+    # Kit configuration tab
+    TabbedPanelItem:
+        text: 'Kit setup'
+        # Tabs under tab for every type of kit
+        TabbedPanel:
+            do_default_tab: False
+            TabbedPanelItem:
+                text: 'Extraction'
+                BoxLayout:
+                    BoxLayout:
+                        orientation: 'vertical'
+                        BoxLayout:
+                            size_hint_y: None
+                            height: exe_lvl.height
+                            Label:
+                                size_hint_y: None
+                                height: exe_lvl.height
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'middle'
+                                text: 'Extraction Expert level (0-30):'
+                            TextInput:
+                                id: exe_lvl
+                                multiline: False
+                                hint_text: '#'
+                                text: '30'
+                                input_filter: 'int'
+                                size_hint: 0.5, None
+                                height: self.minimum_height
+                        BoxLayout:
+                            size_hint_y: None
+                            height: exe_t.height
+                            Label:
+                                size_hint_y: None
+                                height: exe_t.height
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'middle'
+                                text: 'Kit tech level:'
+                            TextInput:
+                                id: exe_t
+                                multiline: False
+                                hint_text: '#'
+                                text: '16'
+                                input_filter: 'int'
+                                size_hint: 0.5, None
+                                height: self.minimum_height
+                        Label:
+                        Label:
+                            size_hint_y: None
+                            height: self.texture_size[1]
+                            text_size: self.size
+                            halign: 'left'
+                            text: 'Celestial body resources:'
+                        BoxLayout:
+                            size_hint_y: None
+                            height: met_n.height
+                            Label:
+                                size_hint_y: None
+                                height: met_n.height
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'middle'
+                                text: 'Metals'
+                            TextInput:
+                                id: met_n
+                                multiline: False
+                                hint_text: '#'
+                                input_filter: 'int'
+                                size_hint: 0.5, None
+                                height: self.minimum_height
+                        BoxLayout:
+                            size_hint_y: None
+                            height: nuc_n.height
+                            Label:
+                                size_hint_y: None
+                                height: nuc_n.height
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'middle'
+                                text: 'Nuclear Waste'
+                            TextInput:
+                                id: nuc_n
+                                multiline: False
+                                hint_text: '#'
+                                input_filter: 'int'
+                                size_hint: 0.5, None
+                                height: self.minimum_height
+                        BoxLayout:
+                            size_hint_y: None
+                            height: sil_n.height
+                            Label:
+                                size_hint_y: None
+                                height: sil_n.height
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'middle'
+                                text: 'Silicon'
+                            TextInput:
+                                id: sil_n
+                                multiline: False
+                                hint_text: '#'
+                                input_filter: 'int'
+                                size_hint: 0.5, None
+                                height: self.minimum_height
+                        BoxLayout:
+                            size_hint_y: None
+                            height: oat_n.height
+                            Label:
+                                size_hint_y: None
+                                height: oat_n.height
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'middle'
+                                text: 'Space Oats'
+                            TextInput:
+                                id: oat_n
+                                multiline: False
+                                hint_text: '#'
+                                input_filter: 'int'
+                                size_hint: 0.5, None
+                                height: self.minimum_height
+                        BoxLayout:
+                            size_hint_y: None
+                            height: bao_n.height
+                            Label:
+                                size_hint_y: None
+                                height: bao_n.height
+                                text_size: self.size
+                                halign: 'left'
+                                valign: 'middle'
+                                text: 'Baobabs'
+                            TextInput:
+                                id: bao_n
+                                multiline: False
+                                hint_text: '#'
+                                input_filter: 'int'
+                                size_hint: 0.5, None
+                                height: self.minimum_height
+                        Label:
+                        Button:
+                            text: 'Calculate setup'
+                            on_release:
+                                app.calculate_exe_setup(**{'tech': exe_t.text,\
+                                'met': met_n.text,\
+                                'nuc': nuc_n.text,\
+                                'sil': sil_n.text,\
+                                'oat': oat_n.text,\
+                                'bao': bao_n.text})
+                    Splitter:
+                        sizable_from: 'left'
+                        ScrollView:
+                            Label:
+                                id: exe_info
+                                text_size: self.width, None
+                                text: 'Fill in information and press calculate setup.'
+                                size_hint_y: None
+                                height: self.texture_size[1]
+            TabbedPanelItem:
+                text: 'Prod'
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'Only girders here (product not finished).'
+            TabbedPanelItem:
+                text: 'Colony'
+                BoxLayout:
+                    orientation: 'vertical'
+                    Label:
+                        text: 'Only girders here (product not finished).'
+
     # Database view tab
     TabbedPanelItem:
         text: 'Database'

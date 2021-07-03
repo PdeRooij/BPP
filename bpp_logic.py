@@ -1,5 +1,6 @@
 # Project stuff
 from bpp_db import BppDb
+from kit_setup import KitSetup
 
 # OS stuff to work with files etc.
 from os.path import isfile
@@ -16,7 +17,7 @@ class BppLogic:
         Class is initialised by initialising the database.
 
         Args:
-            db_file (str, optional): Name (and location) of the database file
+            db_file (str): Name (and location) of the database file
         """
         # Keep track whether the database has changed this session
         self.db_change = False
@@ -49,6 +50,9 @@ class BppLogic:
         if dump_file:
             print('Initialising database from dump file: ' + dump_file)
             self.db.initialise_database(dump_file)
+
+        # Initialize kit setup module
+        self.kits = KitSetup()
 
         # Initialise cost dictionaries of blueprint under review
         self.init_cost = {}
@@ -161,6 +165,24 @@ class BppLogic:
 
         # Return dictionary of total costs
         return self.total_cost
+
+    def calculate_exe_setup(self, tech=16, met=0, nuc=0, sil=0, oat=0, bao=0):
+        """
+        Calculates optimal configuration of an ExE kit, given skill level, kit tech and extraction slots.
+
+        Args:
+            tech (int): Tech level of the kit.
+            met (int): Metals slots available on celestial body.
+            nuc (int): Nuclear Waste slots available on celestial body.
+            sil (int): Silicon slots available on celestial body.
+            oat (int): Space Oats slots available on celestial body.
+            bao (int): Baobabs slots available on celestial body.
+
+        Returns:
+            str: String of optimal ExE kit setup
+        """
+        # Just pass everything to Activate's script, lol
+        return self.kits.exe_base_setup(tech, metals=met, nukes=nuc, silicon=sil, oats=oat, baobabs=bao)
 
     def stop(self):
         """Gracefully close database connection when application is stopped."""
