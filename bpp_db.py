@@ -28,7 +28,7 @@ class BppDb:
         """Queries the version of the current database.
 
         Returns:
-            Version (str) of connected database.
+            str: Version of connected database.
         """
         cur = self.connection.cursor()
         # Version is contained in variable 'db_version' in the bpp_variables table. Query and return result.
@@ -44,6 +44,20 @@ class BppDb:
         Returns:
         """
         self.connection.cursor().execute(create_table_sql)
+
+    def get_variable(self, variable):
+        """ Retrieves value of a BPP+ specific variable.
+
+        Args:
+            variable (str): Name of variable to look for.
+
+        Returns:
+            str: Value of requested variable.
+        """
+        cur = self.connection.cursor()
+        cur.execute(f"SELECT value FROM bpp_variables WHERE variable = '{variable}'")
+
+        return cur.fetchone()[0]
 
     def replace_variable(self, variable, value):
         """Replace (add or change) BPP+ specific variable in table of variables.

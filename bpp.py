@@ -59,6 +59,7 @@ class BPP(App):
         Args:
             kwargs (any, optional): ExE information, including:
                 tech (str, optional): Tech level of the kit.
+                ee (str, optional): Extraction Expert level of the character holding the kit.
                 met (str, optional): Metals slots available on celestial body.
                 nuc (str, optional): Nuclear Waste slots available on celestial body.
                 sil (str, optional): Silicon slots available on celestial body.

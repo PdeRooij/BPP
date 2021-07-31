@@ -6,15 +6,20 @@ class KitSetup:
     All logic for calculating kit setups.
     """
 
-    def __init__(self):
+    def __init__(self, db):
         """
         Define characteristics for setup calculations.
         """
-        self.EXE_30_MULT = (100 + 22 * 30) / 100
+        # Retrieve calculation variables from database
+        self.db = db    # Store database module
+        self.ee_lvl_bonus = float(self.db.get_variable('exe_level_bonus'))
+        self.rat_cons = float(self.db.get_variable('worker_ration_consumption'))
+
+        # Some constants
         self.MINUTES_PER_DAY = 24 * 60
         self.COMMODS = ("metals", "nuclear waste", "silicon", "space oats", "baobabs")
-        self.rat_cons = 0.6     # Each worker consumes 0.6 rations per hour
 
+        # Additional extractor info
         self.extractor_techs = (12, 14, 16, 18, 20)
         self.EXTRACTOR_STATS = {   # Fusion extractor rates by tech (per day)
             "metals": {"extraction_rate": {12: 21600, 14: 28080, 16: 34560, 18: 43200, 20: 51840}},
@@ -142,13 +147,14 @@ class KitSetup:
         # Return total amount of workers, hydroponics and MRE factories required for the kit
         return workers, hydros, mres
 
-    def factories_needed(self, extractor_tech, slots=None):
+    def factories_needed(self, extractor_tech, ee=30, slots=None):
         """
         Calculate the number of IC factories required, given extractor tech level,
         Extraction Expert level and available extraction slots.
 
         Args:
             extractor_tech (int): Tech level of equipped extractors.
+            ee (int): Extraction Expert level of character holding the kit.
             slots (dict): Dictionary with available slots per commodity.
 
         Returns:
@@ -160,13 +166,15 @@ class KitSetup:
         factories = {}
         for commod in self.COMMODS:
             if slots.get(commod, 0) > 0:
-                commods_per_min = slots[commod] * self.EXTRACTOR_STATS[commod]["extraction_rate"][extractor_tech]\
-                                  * self.EXE_30_MULT / self.MINUTES_PER_DAY
+                commods_per_min = slots[commod]\
+                                  * self.EXTRACTOR_STATS[commod]["extraction_rate"][extractor_tech]\
+                                  * (1 + self.ee_lvl_bonus * ee)\
+                                  / self.MINUTES_PER_DAY
                 factories[commod] = ceil(commods_per_min / self.FACTORY_STATS[commod]["conversion_rate"])
 
         return factories
 
-    def exe_base_setup(self, base_tech, metals=0, nukes=0, silicon=0, oats=0, baobabs=0):
+    def exe_base_setup(self, base_tech, ee_level=30, metals=0, nukes=0, silicon=0, oats=0, baobabs=0):
         slots = {}
         if metals > 0:
             slots["metals"] = metals
@@ -183,7 +191,7 @@ class KitSetup:
         if tech is None:
             return "Base tech is too low!"
 
-        factories = self.factories_needed(tech, slots)
+        factories = self.factories_needed(tech, ee_level, slots)
         workers, hydros, mres = self.calculate_workforce(slots, factories)
 
         # Construct result string
